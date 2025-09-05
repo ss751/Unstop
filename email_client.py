@@ -8,10 +8,10 @@ from database import DataBase
 class Mail:
     mails = Queue(maxsize=0)
     ssl_server = 'imap.gmail.com'
-    imap = imaplib2.IMAP4_SSL(ssl_server)
     db = DataBase()
     def __init__(self, email, password):
         try:
+            self.imap = imaplib2.IMAP4_SSL(self.ssl_server)
             res = self.imap.login(email, password)
             print(res)
         except Exception as e:
@@ -54,10 +54,16 @@ class Mail:
                 if payload is not None:
                     charset = msg.get_content_charset() or 'utf-8'
                     body = payload.decode(charset)
-            self.db.insertOne(msg['from'],msg['to'],msg['cc'],msg['subject'],msg['date'],body,'','')
-            
 
-
-
-
-
+            # Categorization Logic
+            category = ['Support','Help', 'Query','Request']
+            subject = msg['subject'].lower()
+            mail_category = None
+            for cat in category:
+                if cat.lower() in subject:
+                    mail_category = cat
+                    break
+            if mail_category is None:
+                mail_category = 'General'
+               
+            self.db.insertOne(msg['from'],msg['to'],msg['cc'],msg['subject'],msg['date'],body,mail_category,'','')

@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from database import DataBase # Ensure this function exists
-from bson import ObjectId
+from database import DataBase 
 import re
 from email_client import Mail
 from threading import Thread
@@ -44,9 +43,11 @@ if __name__ == '__main__':
     m = Mail(email, password)
     Thread1 = Thread(target=m.listener, daemon=True)
     Thread2 = Thread(target=m.operations, daemon=True)
+
     Thread1.start()
     Thread2.start()
 
     app.run(debug=True)
+
     
 

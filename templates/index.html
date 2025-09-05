@@ -372,6 +372,21 @@
             margin-bottom: 16px;
         }
 
+        .category-badge {
+            display: inline-block;
+            min-width: 60px;
+            padding: 4px 12px;
+            margin-right: 12px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #FFD700 0%, #FFECB3 100%);
+            color: #7c5c00;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(255, 215, 0, 0.15);
+            border: 1px solid #ffe066;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -425,20 +440,32 @@
 
         <!-- Email List -->
         <div class="email-list" id="email-list">
-            <div id="inbox-emails">
-                <!-- Inbox emails will be populated by JavaScript -->
-            </div>
+            <div style="padding: 16px 20px;">
+        <label for="category-filter" style="font-weight:500;">Filter by Category:</label>
+        <select id="category-filter" style="margin-left:8px; padding:4px 12px; border-radius:8px; border:1px solid #dadce0;">
+            <option value="All">All</option>
+            <option value="Support">Support</option>
+            <option value="Help">Help</option>
+            <option value="Query">Query</option>
+            <option value="Request">Request</option>
+            <option value="General">General</option>
+        </select>
+    </div>
+    <div id="inbox-emails">
+        <!-- Inbox emails will be populated by JavaScript -->
+    </div>
 
-            <div id="empty-state" class="empty-state" style="display: none;">
-                <div class="empty-state-icon">📭</div>
-                <div>No emails in this folder</div>
-            </div>
+    <div id="empty-state" class="empty-state" style="display: none;">
+        <div class="empty-state-icon">📭</div>
+        <div>No emails in this folder</div>
+    </div>
         </div>
     </div>
 
     <script>
         let emailData = [];
-        
+        let filteredCategory = "All";
+
         async function fetchEmails() {
             try {
                 const response = await fetch('/api/emails');
@@ -452,13 +479,18 @@
         }
 
         function renderEmails() {
-            const emailList = document.getElementById('email-list');
-            if (!emailData || emailData.length === 0) {
-                emailList.innerHTML = '<div class="empty-state">No emails found.</div>';
+            const inboxEmails = document.getElementById('inbox-emails');
+            let filteredEmails = emailData;
+            if (filteredCategory !== "All") {
+                filteredEmails = emailData.filter(email => (email.category || 'General') === filteredCategory);
+            }
+            if (!filteredEmails || filteredEmails.length === 0) {
+                inboxEmails.innerHTML = '<div class="empty-state">No emails found.</div>';
                 return;
             }
-            emailList.innerHTML = emailData.map(email => `
+            inboxEmails.innerHTML = filteredEmails.map(email => `
                 <div class="email-item" data-email-id="${email._id}">
+                    <span class="category-badge">${email.category || 'General'}</span>
                     <span class="sender">${email.sender}</span>
                     <span class="subject-snippet">
                         <span class="subject">${email.subject}</span>
@@ -468,7 +500,6 @@
                 </div>
             `).join('');
 
-            // Add click event listeners to each email item
             document.querySelectorAll('.email-item').forEach(item => {
                 item.addEventListener('click', function() {
                     const emailId = this.getAttribute('data-email-id');
@@ -476,6 +507,11 @@
                 });
             });
         }
+
+        document.getElementById('category-filter').addEventListener('change', function() {
+            filteredCategory = this.value;
+            renderEmails();
+        });
 
         fetchEmails();
     </script>
