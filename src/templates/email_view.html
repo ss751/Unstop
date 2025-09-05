@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ email.subject }}</title>
+    <style>
+        /* --- Copy styles from index.html for header, sidebar, layout --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #ffffff;
+            color: #202124;
+        }
+        .header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #dadce0;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .logo span {
+            font-size: 22px;
+            color: #5f6368;
+            font-weight: 400;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .profile-pic {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #1a73e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .main-container {
+            display: flex;
+            margin-top: 64px;
+            height: calc(100vh - 64px);
+        }
+        .sidebar {
+            width: 256px;
+            background-color: #ffffff;
+            border-right: 1px solid #dadce0;
+            padding: 20px 0;
+        }
+        .nav-item {
+            padding: 8px 24px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #202124;
+            border-radius: 0 24px 24px 0;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: background-color 0.2s;
+        }
+        .nav-item:hover {
+            background-color: #f1f3f4;
+        }
+        .nav-item.active {
+            background-color: #fce8e6;
+            color: #d93025;
+            font-weight: 500;
+        }
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+        .email-view-container {
+            flex: 1;
+            background-color: #ffffff;
+            padding: 40px 32px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: #1a73e8;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 8px 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+        .email-subject {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #202124;
+        }
+        .email-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #dadce0;
+        }
+        .sender-info {
+            flex: 1;
+        }
+        .sender-name {
+            font-weight: 500;
+            color: #202124;
+        }
+        .sender-email {
+            color: #5f6368;
+            font-size: 14px;
+        }
+        .recipient-info {
+            color: #5f6368;
+            font-size: 14px;
+        }
+        .email-date {
+            color: #5f6368;
+            font-size: 14px;
+        }
+        .email-content {
+            line-height: 1.6;
+            color: #202124;
+            font-size: 15px;
+            margin-top: 24px;
+            margin-bottom: 32px;
+        }
+        .reply-section {
+            border-top: 1px solid #dadce0;
+            padding-top: 24px;
+        }
+        .reply-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: #f1f3f4;
+            border: none;
+            border-radius: 24px;
+            color: #1a73e8;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: background 0.2s;
+        }
+        .reply-btn:hover {
+            background: #e8f0fe;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .email-view-container {
+                padding: 20px 8px;
+            }
+        }
+        @media (max-width: 600px) {
+            .sidebar {
+                display: none;
+            }
+            .header {
+                padding: 0 16px;
+            }
+            .email-view-container {
+                padding: 10px 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo" onclick="window.location.href='/'">
+            <span>📧</span>
+            <span>Mail-Client</span>
+        </div>
+        
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="nav-item active" onclick="window.location.href='/'">
+                <span class="nav-icon">📥</span>
+                Inbox
+            </div>
+        </div>
+
+        <!-- Email View -->
+        <div class="email-view-container">
+            <button class="back-btn" onclick="window.location.href='/'">← Back to Inbox</button>
+            <div class="email-subject">{{ email.subject }}</div>
+            <div class="email-meta">
+                <div class="sender-info">
+                    <div class="sender-name">{{ sender_name }}&lt;{{ sender_email }}&gt;</div>
+                    <div class="recipient-info">to {{ email.reciever }}</div>
+                    {% if email.Cc %}
+                        <div class="recipient-info">Cc: {{ email.Cc }}</div>
+                    {% endif %}
+                </div>
+                <div class="email-date">{{ email.date }}</div>
+            </div>
+            <div class="email-content">
+                {{ email.body | safe }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
