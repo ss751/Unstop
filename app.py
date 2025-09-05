@@ -5,6 +5,7 @@ from email_client import Mail
 from threading import Thread
 from dotenv import load_dotenv
 import os
+from bson.objectid import ObjectId
 
 app = Flask(__name__)
 db = DataBase()
@@ -15,7 +16,6 @@ def home():
 @app.route('/api/emails')
 def api_emails():
     emails = db.fetchAll()
-    # Convert ObjectId to string
     for mail in emails:
         mail['_id'] = str(mail['_id'])
     return jsonify(emails)
@@ -35,6 +35,11 @@ def view_email(email_id):
     sender_name, sender_email = parse_sender(email.get('sender', ''))
     return render_template('email_view.html', email=email, sender_name=sender_name, sender_email=sender_email)
 
+@app.route('/api/emails/<email_id>/mark_read', methods=['POST'])
+def mark_email_read(email_id):
+    db.collection.update_one({'_id': ObjectId(email_id)}, {'$set': {'status': 'read'}})
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     load_dotenv()
     email = os.getenv('email')
@@ -49,5 +54,5 @@ if __name__ == '__main__':
 
     app.run(debug=True)
 
-    
+
 

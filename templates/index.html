@@ -247,7 +247,14 @@
             color: #202124;
         }
 
-        .email-item.read .sender {
+        .email-item.unread .sender,
+        .email-item.unread .subject {
+            font-weight: 500;
+            color: #202124;
+        }
+
+        .email-item.read .sender,
+        .email-item.read .subject {
             font-weight: 400;
             color: #5f6368;
         }
@@ -489,7 +496,8 @@
                 return;
             }
             inboxEmails.innerHTML = filteredEmails.map(email => `
-                <div class="email-item" data-email-id="${email._id}">
+                <div class="email-item ${email.status === 'unread' ? 'unread' : 'read'}" data-email-id="${email._id}">
+                    ${email.status === 'unread' ? '<span class="unread-dot" style="display:inline-block;width:8px;height:8px;background:#1a73e8;border-radius:50%;margin-right:8px;"></span>' : '<span style="width:8px;display:inline-block;"></span>'}
                     <span class="category-badge">${email.category || 'General'}</span>
                     <span class="sender">${email.sender}</span>
                     <span class="subject-snippet">
@@ -501,8 +509,10 @@
             `).join('');
 
             document.querySelectorAll('.email-item').forEach(item => {
-                item.addEventListener('click', function() {
+                item.addEventListener('click', async function() {
                     const emailId = this.getAttribute('data-email-id');
+                    // Mark as read before redirect
+                    await fetch(`/api/emails/${emailId}/mark_read`, { method: 'POST' });
                     window.location.href = `/api/emails/${emailId}`;
                 });
             });

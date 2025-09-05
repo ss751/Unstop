@@ -8,7 +8,16 @@ class DataBase:
         self.collection = db.get_collection('mail_storage')  
 
     def insertOne(self, sender, reciever, cc, subject, date, body, category, auto_reply, urgency):
-        id = self.collection.insert_one({'sender': sender, 'reciever':reciever, 'Cc': cc, 'subject':subject, 'date':date, 'body':body, 'category':category, 'auto_reply':auto_reply,'urgency':urgency})
+        id = self.collection.insert_one({'sender': sender, 
+                                         'reciever':reciever, 
+                                         'Cc': cc, 
+                                         'subject':subject, 
+                                         'date':date, 
+                                         'body':body, 
+                                         'category':category, 
+                                         'auto_reply':auto_reply,
+                                         'urgency':urgency,
+                                         'status':'unread'}).inserted_id
         return id
     
     def fetchAll(self):
