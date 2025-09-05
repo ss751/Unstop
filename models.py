@@ -28,3 +28,4 @@ def cal_urgency(subject, body):
     body_sent = analyze_sentiment(body)
     urgency = sub_urg + body_sent['rating']
     return urgency
+

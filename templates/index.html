@@ -381,8 +381,9 @@
 
         .category-badge {
             display: inline-block;
-            min-width: 60px;
-            padding: 4px 12px;
+            min-width: 80px; /* Increased from 60px for longer words */
+            width: 80px;     /* Fixed width for alignment */
+            padding: 4px 0;  /* Remove horizontal padding to fit width */
             margin-right: 12px;
             border-radius: 12px;
             background: linear-gradient(90deg, #FFD700 0%, #FFECB3 100%);
@@ -392,6 +393,8 @@
             text-align: center;
             box-shadow: 0 1px 4px rgba(255, 215, 0, 0.15);
             border: 1px solid #ffe066;
+            overflow: hidden;
+            white-space: nowrap;
         }
 
         /* Responsive */
@@ -496,17 +499,21 @@
                 return;
             }
             inboxEmails.innerHTML = filteredEmails.map(email => `
-                <div class="email-item ${email.status === 'unread' ? 'unread' : 'read'}" data-email-id="${email._id}">
-                    ${email.status === 'unread' ? '<span class="unread-dot" style="display:inline-block;width:8px;height:8px;background:#1a73e8;border-radius:50%;margin-right:8px;"></span>' : '<span style="width:8px;display:inline-block;"></span>'}
-                    <span class="category-badge">${email.category || 'General'}</span>
-                    <span class="sender">${email.sender}</span>
-                    <span class="subject-snippet">
-                        <span class="subject">${email.subject}</span>
-                        <span class="snippet">- ${email.body ? email.body.slice(0, 40) : ''}....</span>
-                    </span>
-                    <span class="timestamp">${email.date}</span>
-                </div>
-            `).join('');
+    <div class="email-item ${email.status === 'unread' ? 'unread' : 'read'}" data-email-id="${email._id}">
+        <span class="unread-dot-container">
+            ${email.status === 'unread' 
+                ? '<span class="unread-dot"></span>' 
+                : ''}
+        </span>
+        <span class="category-badge">${email.category || 'General'}</span>
+        <span class="sender">${email.sender}</span>
+        <span class="subject-snippet">
+            <span class="subject">${email.subject}</span>
+            <span class="snippet">- ${email.body ? email.body.slice(0, 40) : ''}....</span>
+        </span>
+        <span class="timestamp">${email.date}</span>
+    </div>
+`).join('');
 
             document.querySelectorAll('.email-item').forEach(item => {
                 item.addEventListener('click', async function() {
