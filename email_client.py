@@ -3,12 +3,14 @@ import imaplib2
 from email import message_from_bytes
 from queue import Queue
 from database import DataBase
+from models import cal_urgency
 
 
 class Mail:
     mails = Queue(maxsize=0)
     ssl_server = 'imap.gmail.com'
     db = DataBase()
+    
     def __init__(self, email, password):
         try:
             self.imap = imaplib2.IMAP4_SSL(self.ssl_server)
@@ -65,5 +67,7 @@ class Mail:
                     break
             if mail_category is None:
                 mail_category = 'General'
-               
-            self.db.insertOne(msg['from'],msg['to'],msg['cc'],msg['subject'],msg['date'],body,mail_category,'','')
+            
+            urgency = cal_urgency(subject, body)
+            id = self.db.insertOne(msg['from'],msg['to'],msg['cc'],msg['subject'],msg['date'],body,mail_category,'',urgency)
+            

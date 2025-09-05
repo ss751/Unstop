@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 
 class DataBase:
+    
     def __init__(self):
         client = MongoClient("mongodb://localhost:27017/")
         db = client['new_database']
@@ -17,11 +18,12 @@ class DataBase:
                                          'category':category, 
                                          'auto_reply':auto_reply,
                                          'urgency':urgency,
-                                         'status':'unread'}).inserted_id
+                                         'status':'unread',
+                                         'replied':'no'}).inserted_id
         return id
     
     def fetchAll(self):
-        cursor = self.collection.find()
+        cursor = self.collection.find().sort({'urgency': 1})
         mails = []
         for mail in cursor:
             mails.append(mail)

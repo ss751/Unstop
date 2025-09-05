@@ -51,3 +51,17 @@ for response_part in mail:
 #     print(i)
 
 
+from queue import PriorityQueue
+
+pq = PriorityQueue()
+
+pq.put(0,'1')
+pq.put(5,'2')
+pq.put(2,'3')
+
+
+print(pq.get())
+print(pq.get())
+print(pq.get())
+
+
