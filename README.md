@@ -3,7 +3,7 @@
 An intelligent email management system that automatically categorizes, analyzes, and generates responses for incoming emails using AI and machine learning technologies.
 
 # Video link for working project
-[text](https://drive.google.com/file/d/1Kjt3mugSNC_0GE4wk5MjZWK_1FqhTbtp/view?usp=drive_link)
+[video_link](https://drive.google.com/file/d/1Kjt3mugSNC_0GE4wk5MjZWK_1FqhTbtp/view?usp=drive_link)
 
 
 ## 🚀 Features
