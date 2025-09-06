@@ -24,6 +24,7 @@ class Mail:
             self.server = smtplib.SMTP(self.smtp_server, self.smtp_port)
             self.server.starttls()
             self.server.login(email, password)
+
             print(res)
         except Exception as e:
             print(e)
@@ -73,7 +74,9 @@ class Mail:
             category, auto_rep = response(msg['from'],query)
             urgency = cal_urgency(subject, body, category)
             self.db.insertOne(msg['from'],msg['to'],msg['cc'],msg['subject'],msg['date'],body,category,auto_rep,urgency)
+    
         
+
     def reply(self, email_id, reply_text):
         mail = self.db.get_email_by_id(email_id)
         if not mail:
@@ -101,7 +104,6 @@ class Mail:
 
         try:
             self.server.sendmail(sender_email, recipient_email, msg.as_string())
-            self.server.quit()
             print("Reply sent successfully")
             return True
         except Exception as e:

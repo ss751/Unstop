@@ -59,7 +59,8 @@ def reply_email(email_id):
     data = request.get_json()
     reply_text = data.get('reply', '')
     success = m.reply(email_id, reply_text)
-    db.collection.update_one({'_id': ObjectId(email_id)}, {'$set': {'replied': 'yes'}})
+    if success:
+        db.collection.update_one({'_id': ObjectId(email_id)}, {'$set': {'replied': 'yes'}})
     return jsonify({'success': success})
 
 @app.route('/api/pending_mails')
@@ -77,7 +78,6 @@ if __name__ == '__main__':
     m = Mail(email, password)
     Thread1 = Thread(target=m.listener, daemon=True)
     Thread2 = Thread(target=m.operations, daemon=True)
-
     Thread1.start()
     Thread2.start()
 

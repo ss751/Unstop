@@ -430,7 +430,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo" onclick="showEmailList()">
+        <div class="logo">
             <span>📧</span>
             <span>Mail-Client</span>
         </div>
@@ -444,7 +444,6 @@
             <div class="nav-item active" onclick="switchFolder('inbox')" id="inbox-nav">
                 <span class="nav-icon">📥</span>
                 Inbox
-                <span id="inbox-count" style="margin-left: auto; color: #d93025; font-weight: 500;">6</span>
             </div>
             <div class="nav-item" onclick="switchFolder('pending')" id="pending-nav">
     <span class="nav-icon">⏳</span>
@@ -477,79 +476,83 @@
     </div>
 
     <script>
-        let emailData = [];
-        let filteredCategory = "All";
-        let currentFolder = "inbox";
+    let emailData = [];
+    let filteredCategory = "All";
+    let currentFolder = localStorage.getItem('currentFolder') || "inbox";
 
-        async function fetchEmails() {
-            let url = '/api/emails';
-            if (currentFolder === 'pending') url = '/api/pending_mails';
-            try {
-                const response = await fetch(url);
-                emailData = await response.json();
-                renderEmails();
-            } catch (err) {
-                console.error('Failed to fetch emails:', err);
-                emailData = [];
-                renderEmails();
-            }
+    async function fetchEmails() {
+        let url = '/api/emails';
+        if (currentFolder === 'pending') url = '/api/pending_mails';
+        try {
+            const response = await fetch(url);
+            emailData = await response.json();
+            renderEmails();
+        } catch (err) {
+            console.error('Failed to fetch emails:', err);
+            emailData = [];
+            renderEmails();
         }
+    }
 
-        function switchFolder(folder) {
-            currentFolder = folder;
-            document.getElementById('inbox-nav').classList.remove('active');
-            document.getElementById('pending-nav').classList.remove('active');
-            if (folder === 'inbox') {
-                document.getElementById('inbox-nav').classList.add('active');
-            } else if (folder === 'pending') {
-                document.getElementById('pending-nav').classList.add('active');
-            }
-            fetchEmails();
+    function switchFolder(folder) {
+        currentFolder = folder;
+        localStorage.setItem('currentFolder', folder); // Persist folder
+        document.getElementById('inbox-nav').classList.remove('active');
+        document.getElementById('pending-nav').classList.remove('active');
+        if (folder === 'inbox') {
+            document.getElementById('inbox-nav').classList.add('active');
+        } else if (folder === 'pending') {
+            document.getElementById('pending-nav').classList.add('active');
         }
+        fetchEmails();
+    }
 
-        function renderEmails() {
-            const inboxEmails = document.getElementById('inbox-emails');
-            let filteredEmails = emailData;
-            if (filteredCategory !== "All") {
-                filteredEmails = emailData.filter(email => (email.category || 'General') === filteredCategory);
-            }
-            if (!filteredEmails || filteredEmails.length === 0) {
-                inboxEmails.innerHTML = '<div class="empty-state">No emails found.</div>';
-                return;
-            }
-            inboxEmails.innerHTML = filteredEmails.map(email => `
-    <div class="email-item ${email.status === 'unread' ? 'unread' : 'read'}" data-email-id="${email._id}">
-        <span class="unread-dot-container">
-            ${email.status === 'unread' 
-                ? '<span class="unread-dot"></span>' 
-                : ''}
-        </span>
-        <span class="category-badge">${email.category || 'General'}</span>
-        <span class="sender">${email.sender}</span>
-        <span class="subject-snippet">
-            <span class="subject">${email.subject}</span>
-            <span class="snippet">- ${email.body ? email.body.slice(0, 40) : ''}....</span>
-        </span>
-        <span class="timestamp">${email.date}</span>
-    </div>
+    function renderEmails() {
+        const inboxEmails = document.getElementById('inbox-emails');
+        let filteredEmails = emailData;
+        if (filteredCategory !== "All") {
+            filteredEmails = emailData.filter(email => (email.category || 'General') === filteredCategory);
+        }
+        if (!filteredEmails || filteredEmails.length === 0) {
+            inboxEmails.innerHTML = '<div class="empty-state">No emails found.</div>';
+            return;
+        }
+        inboxEmails.innerHTML = filteredEmails.map(email => `
+<div class="email-item ${email.status === 'unread' ? 'unread' : 'read'}" data-email-id="${email._id}">
+    <span class="unread-dot-container">
+        ${email.status === 'unread' 
+            ? '<span class="unread-dot"></span>' 
+            : ''}
+    </span>
+    <span class="category-badge">${email.category || 'General'}</span>
+    <span class="sender">${email.sender}</span>
+    <span class="subject-snippet">
+        <span class="subject">${email.subject}</span>
+        <span class="snippet">- ${email.body ? email.body.slice(0, 40) : ''}....</span>
+    </span>
+    <span class="timestamp">${email.date}</span>
+</div>
 `).join('');
 
-            document.querySelectorAll('.email-item').forEach(item => {
-                item.addEventListener('click', async function() {
-                    const emailId = this.getAttribute('data-email-id');
-                    // Mark as read before redirect
-                    await fetch(`/api/emails/${emailId}/mark_read`, { method: 'POST' });
-                    window.location.href = `/api/emails/${emailId}`;
-                });
+        document.querySelectorAll('.email-item').forEach(item => {
+            item.addEventListener('click', async function() {
+                const emailId = this.getAttribute('data-email-id');
+                // Mark as read before redirect
+                await fetch(`/api/emails/${emailId}/mark_read`, { method: 'POST' });
+                window.location.href = `/api/emails/${emailId}`;
             });
-        }
-
-        document.getElementById('category-filter').addEventListener('change', function() {
-            filteredCategory = this.value;
-            renderEmails();
         });
+    }
 
-        fetchEmails();
+    document.getElementById('category-filter').addEventListener('change', function() {
+        filteredCategory = this.value;
+        renderEmails();
+    });
+
+    // Restore folder selection on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        switchFolder(currentFolder);
+    });
     </script>
 </body>
 </html>
