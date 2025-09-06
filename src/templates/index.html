@@ -36,11 +36,12 @@
         <label for="category-filter" style="font-weight:500;">Filter by Category:</label>
         <select id="category-filter" style="margin-left:8px; padding:4px 12px; border-radius:8px; border:1px solid #dadce0;">
             <option value="All">All</option>
-            <option value="Support">Support</option>
-            <option value="Help">Help</option>
-            <option value="Query">Query</option>
-            <option value="Request">Request</option>
-            <option value="General">General</option>
+            <option value="ACCOUNT">Account</option>
+            <option value="CONTACT">Contact</option>
+            <option value="ORDER">Order</option>
+            <option value="PAYMENT">Payment</option>
+            <option value="FEEDBACK">Feedback</option>
+            <option value="REFUND">Refund</option>
         </select>
     </div>
     <div id="inbox-emails">
@@ -55,55 +56,55 @@
     </div>
 
     <script>
-    let emailData = [];
-    let filteredCategory = "All";
-    let currentFolder = localStorage.getItem('currentFolder') || "inbox";
+let emailData = [];
+let filteredCategory = "All";
+let currentFolder = localStorage.getItem('currentFolder') || "inbox";
 
-    async function fetchEmails() {
-        let url = '/api/emails';
-        if (currentFolder === 'pending') url = '/api/pending_mails';
-        try {
-            const response = await fetch(url);
-            emailData = await response.json();
-            renderEmails();
-        } catch (err) {
-            console.error('Failed to fetch emails:', err);
-            emailData = [];
-            renderEmails();
-        }
+async function fetchEmails() {
+    let url = '/api/emails';
+    if (currentFolder === 'pending') url = '/api/pending_mails';
+    try {
+        const response = await fetch(url);
+        emailData = await response.json();
+        renderEmails();
+    } catch (err) {
+        console.error('Failed to fetch emails:', err);
+        emailData = [];
+        renderEmails();
     }
+}
 
-    function switchFolder(folder) {
-        currentFolder = folder;
-        localStorage.setItem('currentFolder', folder); // Persist folder
-        document.getElementById('inbox-nav').classList.remove('active');
-        document.getElementById('pending-nav').classList.remove('active');
-        if (folder === 'inbox') {
-            document.getElementById('inbox-nav').classList.add('active');
-        } else if (folder === 'pending') {
-            document.getElementById('pending-nav').classList.add('active');
-        }
-        fetchEmails();
+function switchFolder(folder) {
+    currentFolder = folder;
+    localStorage.setItem('currentFolder', folder); // Persist folder
+    document.getElementById('inbox-nav').classList.remove('active');
+    document.getElementById('pending-nav').classList.remove('active');
+    if (folder === 'inbox') {
+        document.getElementById('inbox-nav').classList.add('active');
+    } else if (folder === 'pending') {
+        document.getElementById('pending-nav').classList.add('active');
     }
+    fetchEmails();
+}
 
-    function renderEmails() {
-        const inboxEmails = document.getElementById('inbox-emails');
-        let filteredEmails = emailData;
-        if (filteredCategory !== "All") {
-            filteredEmails = emailData.filter(email => (email.category || 'General') === filteredCategory);
-        }
-        if (!filteredEmails || filteredEmails.length === 0) {
-            inboxEmails.innerHTML = '<div class="empty-state">No emails found.</div>';
-            return;
-        }
-        inboxEmails.innerHTML = filteredEmails.map(email => `
+function renderEmails() {
+    const inboxEmails = document.getElementById('inbox-emails');
+    let filteredEmails = emailData;
+    if (filteredCategory !== "All") {
+        filteredEmails = emailData.filter(email => (email.category || 'ACCOUNT') === filteredCategory);
+    }
+    if (!filteredEmails || filteredEmails.length === 0) {
+        inboxEmails.innerHTML = '<div class="empty-state">No emails found.</div>';
+        return;
+    }
+    inboxEmails.innerHTML = filteredEmails.map(email => `
 <div class="email-item ${email.status === 'unread' ? 'unread' : 'read'}" data-email-id="${email._id}">
     <span class="unread-dot-container">
         ${email.status === 'unread' 
             ? '<span class="unread-dot"></span>' 
             : ''}
     </span>
-    <span class="category-badge">${email.category || 'General'}</span>
+    <span class="category-badge">${email.category || 'ACCOUNT'}</span>
     <span class="sender">${email.sender}</span>
     <span class="subject-snippet">
         <span class="subject">${email.subject}</span>
@@ -113,25 +114,25 @@
 </div>
 `).join('');
 
-        document.querySelectorAll('.email-item').forEach(item => {
-            item.addEventListener('click', async function() {
-                const emailId = this.getAttribute('data-email-id');
-                // Mark as read before redirect
-                await fetch(`/api/emails/${emailId}/mark_read`, { method: 'POST' });
-                window.location.href = `/api/emails/${emailId}`;
-            });
+    document.querySelectorAll('.email-item').forEach(item => {
+        item.addEventListener('click', async function() {
+            const emailId = this.getAttribute('data-email-id');
+            // Mark as read before redirect
+            await fetch(`/api/emails/${emailId}/mark_read`, { method: 'POST' });
+            window.location.href = `/api/emails/${emailId}`;
         });
-    }
-
-    document.getElementById('category-filter').addEventListener('change', function() {
-        filteredCategory = this.value;
-        renderEmails();
     });
+}
 
-    // Restore folder selection on page load
-    window.addEventListener('DOMContentLoaded', () => {
-        switchFolder(currentFolder);
-    });
-    </script>
+document.getElementById('category-filter').addEventListener('change', function() {
+    filteredCategory = this.value;
+    renderEmails();
+});
+
+// Restore folder selection on page load
+window.addEventListener('DOMContentLoaded', () => {
+    switchFolder(currentFolder);
+});
+</script>
 </body>
 </html>
