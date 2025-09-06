@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import os
 from bson.objectid import ObjectId
 
+
 app = Flask(__name__)
 db = DataBase()
 
@@ -16,6 +17,13 @@ def home():
 
 @app.route('/api/emails')
 def api_emails():
+    emails = db.fetchAll()
+    for mail in emails:
+        mail['_id'] = str(mail['_id'])
+    return jsonify(emails)
+
+@app.route('/api/emails')
+def api_emails_all():
     emails = db.fetchAll()
     for mail in emails:
         mail['_id'] = str(mail['_id'])
@@ -40,6 +48,19 @@ def view_email(email_id):
 def mark_email_read(email_id):
     db.collection.update_one({'_id': ObjectId(email_id)}, {'$set': {'status': 'read'}})
     return jsonify({'success': True})
+
+@app.route('/api/emails/<email_id>/reply', methods=['POST'])
+def reply_email(email_id):
+    email = db.get_email_by_id(email_id)
+    if not email:
+        return jsonify({'success': False, 'error': 'Email not found'}), 404
+    if email.get('replied', 'no') == 'yes':
+        return jsonify({'success': False, 'error': 'Already replied'}), 400
+    data = request.get_json()
+    reply_text = data.get('reply', '')
+    success = m.reply(email_id, reply_text)
+    db.collection.update_one({'_id': ObjectId(email_id)}, {'$set': {'replied': 'yes'}})
+    return jsonify({'success': success})
 
 if __name__ == '__main__':
     load_dotenv()

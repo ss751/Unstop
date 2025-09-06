@@ -3,18 +3,27 @@ import imaplib2
 from email import message_from_bytes
 from queue import Queue
 from database import DataBase
-from models import cal_urgency
-
+from sentiment import cal_urgency
+from auto_reply import response
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
 
 class Mail:
     mails = Queue(maxsize=0)
     ssl_server = 'imap.gmail.com'
+    smtp_server = 'smtp.gmail.com'
+    smtp_port = 587
     db = DataBase()
     
     def __init__(self, email, password):
         try:
             self.imap = imaplib2.IMAP4_SSL(self.ssl_server)
             res = self.imap.login(email, password)
+            self.server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+            self.server.starttls()
+            self.server.login(email, password)
             print(res)
         except Exception as e:
             print(e)
@@ -58,16 +67,40 @@ class Mail:
                     body = payload.decode(charset)
 
             # Categorization Logic
-            category = ['Support','Help', 'Query','Request']
+            category = ['ACCOUNT', 'CONTACT', 'FEEDBACK', 'ORDER', 'PAYMENT', 'REFUND']
             subject = msg['subject'].lower()
-            mail_category = None
-            for cat in category:
-                if cat.lower() in subject:
-                    mail_category = cat
-                    break
-            if mail_category is None:
-                mail_category = 'General'
-            
-            urgency = cal_urgency(subject, body)
-            id = self.db.insertOne(msg['from'],msg['to'],msg['cc'],msg['subject'],msg['date'],body,mail_category,'',urgency)
-            
+            query = f"subject: {subject} " + f"body: {body}"
+            category, auto_rep = response(msg['from'],query)
+            urgency = cal_urgency(subject, body, category)
+            self.db.insertOne(msg['from'],msg['to'],msg['cc'],msg['subject'],msg['date'],body,category,auto_rep,urgency)
+        
+    def reply(self, email_id, reply_text):
+        mail = self.db.get_email_by_id(email_id)
+        if not mail:
+            print("Email not found")
+            return False
+
+        sender_email = mail.get('reciever')
+        recipient_email = mail.get('sender')
+        subject = "Re: " + mail.get('subject', '')
+        message_id = mail.get('message_id', None)  # If you store this
+
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = recipient_email
+        msg['Subject'] = subject
+        if message_id:
+            msg['In-Reply-To'] = message_id
+            msg['References'] = message_id
+        msg.attach(MIMEText(reply_text, 'plain'))
+
+        try:
+            self.server.sendmail(sender_email, recipient_email, msg.as_string())
+            self.server.quit()
+            print("Reply sent successfully")
+            return True
+        except Exception as e:
+            print("Failed to send reply:", e)
+            return False
+        
+

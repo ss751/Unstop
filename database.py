@@ -35,6 +35,13 @@ class DataBase:
             return mail
         except Exception:
             return None
+        
+    def fetchReplyPending(self):
+        cursor = self.collection.find({'replied': {'$no': 'yes'}}).sort('urgency', 1)
+        mails = []
+        for mail in cursor:
+            mails.append(mail)
+        return mails
 
 
 
