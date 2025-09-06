@@ -4,10 +4,10 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 
-ds = pd.read_csv('cust_support.csv')
+ds = pd.read_csv('src/data/cust_support.csv')
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
-kb = faiss.read_index("faiss.index")
+kb = faiss.read_index('src/data/faiss.index')
 
 def retrieve(query, top_k=2):
     query_emb = model.encode([query], convert_to_numpy=True)

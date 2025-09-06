@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ email.subject }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo" onclick="window.location.href='/'">
+            <span>📧</span>
+            <span>Mail-Client</span>
+        </div>
+        
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="nav-item active" onclick="window.location.href='/'">
+                <span class="nav-icon">📥</span>
+                Inbox
+            </div>
+        </div>
+
+        <!-- Email View -->
+        <div class="email-view-container">
+            <button class="back-btn" onclick="window.location.href='/'">← Back to Inbox</button>
+            <div class="email-subject">{{ email.subject }}</div>
+            <div class="email-meta">
+                <div class="sender-info">
+                    <div class="sender-name">{{ sender_name }}&lt;{{ sender_email }}&gt;</div>
+                    <div class="recipient-info">to {{ email.reciever }}</div>
+                    {% if email.Cc %}
+                        <div class="recipient-info">Cc: {{ email.Cc }}</div>
+                    {% endif %}
+                </div>
+                <div class="email-date">{{ email.date }}</div>
+            </div>
+            <div class="email-content">
+                {{ email.body | safe }}
+            </div>
+            <div class="reply-section" style="margin-top:32px;">
+                <textarea 
+                    id="auto-reply-input" 
+                    style="width:90%;height:120px;padding:14px 18px;border-radius:8px;border:1px solid #dadce0;font-size:16px;resize:vertical;" 
+                >{{ email.auto_reply }}</textarea>
+                <br>
+                <button class="reply-btn" style="margin-top:12px;padding:10px 28px;font-size:16px;" onclick="sendReply()">Reply</button>
+            </div>
+            <script>
+            function sendReply() {
+                const replyText = document.getElementById('auto-reply-input').value;
+                fetch(`/api/emails/{{ email._id }}/reply`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({reply: replyText})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        alert('Reply sent!');
+                    } else {
+                        alert('Reply failed!');
+                    }
+                });
+            }
+            </script>
+        </div>
+    </div>
+</body>
+</html>
