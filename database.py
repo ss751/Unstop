@@ -37,7 +37,7 @@ class DataBase:
             return None
         
     def fetchReplyPending(self):
-        cursor = self.collection.find({'replied': {'$no': 'yes'}}).sort('urgency', 1)
+        cursor = self.collection.find({'replied': 'no'}).sort('urgency', 1)
         mails = []
         for mail in cursor:
             mails.append(mail)

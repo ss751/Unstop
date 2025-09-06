@@ -80,6 +80,11 @@ class Mail:
             print("Email not found")
             return False
 
+        # Check if already replied
+        if mail['replied'] == 'yes':
+            print("Already replied to this email")
+            return False
+
         sender_email = mail.get('reciever')
         recipient_email = mail.get('sender')
         subject = "Re: " + mail.get('subject', '')
@@ -102,5 +107,5 @@ class Mail:
         except Exception as e:
             print("Failed to send reply:", e)
             return False
-        
+
 

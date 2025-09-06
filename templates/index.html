@@ -446,6 +446,10 @@
                 Inbox
                 <span id="inbox-count" style="margin-left: auto; color: #d93025; font-weight: 500;">6</span>
             </div>
+            <div class="nav-item" onclick="switchFolder('pending')" id="pending-nav">
+    <span class="nav-icon">⏳</span>
+    Pending Replies
+</div>
         </div>
 
         <!-- Email List -->
@@ -475,10 +479,13 @@
     <script>
         let emailData = [];
         let filteredCategory = "All";
+        let currentFolder = "inbox";
 
         async function fetchEmails() {
+            let url = '/api/emails';
+            if (currentFolder === 'pending') url = '/api/pending_mails';
             try {
-                const response = await fetch('/api/emails');
+                const response = await fetch(url);
                 emailData = await response.json();
                 renderEmails();
             } catch (err) {
@@ -486,6 +493,18 @@
                 emailData = [];
                 renderEmails();
             }
+        }
+
+        function switchFolder(folder) {
+            currentFolder = folder;
+            document.getElementById('inbox-nav').classList.remove('active');
+            document.getElementById('pending-nav').classList.remove('active');
+            if (folder === 'inbox') {
+                document.getElementById('inbox-nav').classList.add('active');
+            } else if (folder === 'pending') {
+                document.getElementById('pending-nav').classList.add('active');
+            }
+            fetchEmails();
         }
 
         function renderEmails() {

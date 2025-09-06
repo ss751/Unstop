@@ -62,6 +62,13 @@ def reply_email(email_id):
     db.collection.update_one({'_id': ObjectId(email_id)}, {'$set': {'replied': 'yes'}})
     return jsonify({'success': success})
 
+@app.route('/api/pending_mails')
+def api_pending_mails():
+    pending_mails = db.fetchReplyPending()
+    for mail in pending_mails:
+        mail['_id'] = str(mail['_id'])
+    return jsonify(pending_mails)
+
 if __name__ == '__main__':
     load_dotenv()
     email = os.getenv('email')
