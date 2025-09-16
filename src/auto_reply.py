@@ -23,7 +23,6 @@ def retrieve(query, top_k=2):
             category = ds.iloc[i,1]
     return category, context
 
-retrieve('Request for refund process clarification,Could you clarify the steps involved in requesting a refund? I submitted one last week but have no update.')
 
 from google import genai
 from dotenv import load_dotenv
