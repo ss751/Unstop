@@ -1,4 +1,4 @@
-# Link to add app password -- https://myaccount.google.com/apppasswords?rapt=AEjHL4PHwK2i8gRH3cftzAYssw0vkt1Xas4Qds6l5KEKNLi8kQSYOPh4ZGcOs27nBz-rDdXkD0ATWGNwp3anwU_hJb_dO7e6oKNxaAQr7bqKa1ise7x6Ers
+# Link to add app password -- https://myaccount.google.com/apppasswords
 import imaplib2
 from email import message_from_bytes
 from queue import Queue
